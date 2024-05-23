@@ -1,5 +1,5 @@
 import { Duration, Stack, StackProps } from "aws-cdk-lib";
-import { Stage } from "./common";
+import { Stage } from "./constants";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
 import path = require("path");

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { Stage } from '../lib/common';
+import { STACK_PREFIX, Stage } from '../lib/constants';
 import { StorageStack } from '../lib/storage';
 import { LambdaStack } from '../lib/lambda';
 import { ApiGatewayStack } from '../lib/api_gateway';
@@ -39,17 +39,17 @@ interface CommonStackProps {
 }
 
 function createStacks(props: CommonStackProps) {
-    const storageStack = new StorageStack(props.app, `StorageStack-${props.stage}`, {
+    const storageStack = new StorageStack(props.app, `${STACK_PREFIX}-StorageStack-${props.stage}`, {
         env: props.env,
         stage: props.stage,
     });
 
-    const lambdaStack = new LambdaStack(props.app, `LambdaStack-${props.stage}`, {
+    const lambdaStack = new LambdaStack(props.app, `${STACK_PREFIX}-LambdaStack-${props.stage}`, {
         env: props.env,
         stage: props.stage,
     });
 
-    const apiGatewayStack = new ApiGatewayStack(props.app, `ApiGatewayStack-${props.stage}`, {
+    const apiGatewayStack = new ApiGatewayStack(props.app, `${STACK_PREFIX}-ApiGatewayStack-${props.stage}`, {
         env: props.env,
         stage: props.stage,
         lambda: lambdaStack.lambda,

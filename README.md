@@ -15,7 +15,8 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 ## Development
 
-1. Build the lambda package navigate to `/lambda/` and run `cargo lambda build --release`.
-2. Set environment variable `STAGE` to "dev", as this will be used for deploying your personal stack to test with. 
+1. Build the lambda package navigate to `/lambda/` and run `cross build --release --target x86_64-unknown-linux-musl` (Windows).
+2. Run unit tests with `cross test --target x86_64-unknown-linux-musl` (Windows).
+3. Set environment variable `STAGE` to "dev", as this will be used for deploying your personal stack to test with. 
 3. Run `aws configure` with your public and secret AWS access key. 
 4. Start using the Useful Commands to play around! 

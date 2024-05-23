@@ -1,5 +1,5 @@
 import { RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
-import { Stage } from "./common";
+import { Stage } from "./constants";
 import { AttributeType, Table } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 

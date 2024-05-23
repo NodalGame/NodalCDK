@@ -7,6 +7,33 @@ Triggers:
       - master
 
 Actions:        
+  UnitTest:
+    # Identifies the action. Do not modify this value.
+    Identifier: aws/managed-test@v1.0.0
+    # Specifies the source and/or artifacts to pass to the action as input.
+    Inputs:
+      # Optional
+      Sources:
+        - WorkflowSource # This specifies that the action requires this Workflow as a source
+    Outputs:
+      # Optional; Automatically discover reports for popular test frameworks
+      AutoDiscoverReports:
+        Enabled: true
+        # Use as prefix for the report files
+        ReportNamePrefix: rpt
+    # Defines the action's properties.
+    Configuration:
+      # Required - Steps are sequential instructions that run shell commands
+      Steps:
+        - Run: rustup target add x86_64-unknown-linux-musl
+        - Run: cargo build --release --target x86_64-unknown-linux-musl
+        - Run: cargo test
+      Container:
+        Registry: CODECATALYST
+        Image: CodeCatalystLinux_x86_64:2024_03
+    Compute:
+      Type: EC2
+
   CDKBootstrap:
     Identifier: aws/cdk-bootstrap@v1
     Environment:
@@ -22,6 +49,8 @@ Actions:
     Configuration:
       Region: us-west-2
       CdkCliVersion: latest
+    DependsOn:
+      - UnitTest
 
   BetaDeploy_StorageStack:
     Identifier: aws/cdk-deploy@v1

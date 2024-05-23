@@ -14,3 +14,20 @@ async fn main() -> Result<(), Error> {
     lambda_runtime::run(func).await?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use lambda_runtime::Context;
+
+    #[tokio::test]
+    async fn test_function_handler() {
+        let payload = json!({});
+        let context = Context::default();
+        let result = function_handler(payload, context).await;
+        assert!(result.is_ok());
+        let response = result.unwrap();
+        assert_eq!(response["statusCode"], 200);
+        assert_eq!(response["body"], "Hello, World!");
+    }
+}

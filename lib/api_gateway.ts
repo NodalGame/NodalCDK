@@ -1,5 +1,5 @@
 import { Stack, StackProps } from "aws-cdk-lib";
-import { Stage } from "./common";
+import { Stage } from "./constants";
 import { Function } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
 import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
