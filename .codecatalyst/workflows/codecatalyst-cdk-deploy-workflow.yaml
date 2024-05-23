@@ -25,16 +25,12 @@ Actions:
     Configuration:
       # Required - Steps are sequential instructions that run shell commands
       Steps:
-        - Run: yum update -y
-        - Run: yum install -y dnf-plugins-core
-        - Run: dnf copr enable ngompa/musl-libc -y
-        - Run: yum install -y musl-devel
         - Run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
         - Run: export PATH="$HOME/.cargo/bin:$PATH"
-        - Run: rustup default stable    
-        - Run: rustup target add x86_64-unknown-linux-musl
+        - Run: rustup default stable
+        - Run: rustup target add x86_64-unknown-linux-gnu
         - Run: cd lambda/
-        - Run: cargo test --target x86_64-unknown-linux-musl
+        - Run: cargo test --target x86_64-unknown-linux-gnu
       Container:
         Registry: CODECATALYST
         Image: CodeCatalystLinux_x86_64:2024_03
