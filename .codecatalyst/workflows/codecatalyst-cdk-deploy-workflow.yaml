@@ -25,6 +25,7 @@ Actions:
     Configuration:
       # Required - Steps are sequential instructions that run shell commands
       Steps:
+        - Run: apt-get update && apt-get install -y musl-tools
         - Run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
         - Run: export PATH="$HOME/.cargo/bin:$PATH"
         - Run: rustup default stable    
