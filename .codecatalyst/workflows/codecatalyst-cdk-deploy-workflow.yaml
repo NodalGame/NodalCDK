@@ -25,6 +25,9 @@ Actions:
     Configuration:
       # Required - Steps are sequential instructions that run shell commands
       Steps:
+        - Run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        - Run: export PATH="$HOME/.cargo/bin:$PATH"
+        - Run: rustup default stable    
         - Run: rustup target add x86_64-unknown-linux-musl
         - Run: cargo build --release --target x86_64-unknown-linux-musl
         - Run: cargo test
