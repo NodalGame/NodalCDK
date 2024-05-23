@@ -20,7 +20,7 @@ export class LambdaStack extends Stack {
          */
         this.lambda = new Function(this, `Lambda-${props.stage}`, {
             runtime: Runtime.PROVIDED_AL2,
-            code: Code.fromAsset(path.join(__dirname, '../lambda/target/x86_64-unknown-linux-musl/release')),
+            code: Code.fromAsset(path.join(__dirname, '../lambda/target/x86_64-unknown-linux-gnu/release')),
             handler: 'bootstrap',
             memorySize: 128,
             timeout: Duration.seconds(10),
