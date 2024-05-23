@@ -30,8 +30,7 @@ Actions:
         - Run: rustup default stable    
         - Run: rustup target add x86_64-unknown-linux-musl
         - Run: cd lambda/
-        - Run: cargo build --release --target x86_64-unknown-linux-musl
-        - Run: cargo test
+        - Run: cargo test --target x86_64-unknown-linux-musl
       Container:
         Registry: CODECATALYST
         Image: CodeCatalystLinux_x86_64:2024_03
