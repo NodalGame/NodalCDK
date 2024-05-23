@@ -1,0 +1,50 @@
+name: Build, Test, and Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Install Rust target
+      run: rustup target add x86_64-unknown-linux-gnu
+
+    - name: Build Lambda function
+      run: |
+        cd lambda
+        cargo build --release --target x86_64-unknown-linux-gnu
+
+    - name: Test Lambda function
+      run: cargo test
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Deploy CDK stacks
+      run: |
+        cdk deploy --all --require-approval never
