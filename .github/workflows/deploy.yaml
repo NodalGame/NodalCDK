@@ -30,13 +30,10 @@ jobs:
     - name: Install Rust target
       run: rustup target add x86_64-unknown-linux-gnu
 
-    - name: Build Lambda function
+    - name: Test Lambda function
       run: |
         cd lambda
-        cargo build --release --target x86_64-unknown-linux-gnu
-
-    - name: Test Lambda function
-      run: cargo test
+        cargo test
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -45,6 +42,8 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-west-2
 
-    - name: Deploy CDK stacks
+    - name: Build and Deploy CDK stacks
       run: |
+        cd lambda
+        cargo build --release --target x86_64-unknown-linux-gnu
         cdk deploy --all --require-approval never
