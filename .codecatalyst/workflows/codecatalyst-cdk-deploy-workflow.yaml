@@ -27,7 +27,7 @@ Actions:
       Steps:
         - Run: yum update -y
         - Run: yum install -y dnf-plugins-core
-        - Run: dnf copr enable ngompa/musl-libc
+        - Run: dnf copr enable ngompa/musl-libc -y
         - Run: yum install -y musl-devel
         - Run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
         - Run: export PATH="$HOME/.cargo/bin:$PATH"
