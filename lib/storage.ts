@@ -2,18 +2,22 @@ import { RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
 import { Stage } from "./constants";
 import { AttributeType, Table } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
+import { Function } from "aws-cdk-lib/aws-lambda";
 
-export interface StorageStackProps extends StackProps {
+export interface StorageConstructProps {
     /** The stage of this stack (dev, beta, prod). */
     readonly stage: Stage;
+
+    /** The lambda function interfacing with storage. */
+    readonly lambda: Function;
 }
 
-export class StorageStack extends Stack {
+export class StorageConstruct extends Construct {
     readonly usersTable: Table;
     readonly userProgressTable: Table;
 
-    constructor(scope: Construct, id: string, props: StorageStackProps) {
-        super(scope, id, props);
+    constructor(scope: Construct, id: string, props: StorageConstructProps) {
+        super(scope, id);
 
         /**
          * Dynamo table for mapping users' platform specific id to global id. 
@@ -25,7 +29,7 @@ export class StorageStack extends Stack {
         });
     
         /**
-         * Dynamo table for storing users' completed levels. 
+         * Dynamo table for storing users' progress and completion status for puzzles. 
          */
         this.userProgressTable = new Table(this, `UserProgress-${props.stage}`, {
             partitionKey: { name: 'userId', type: AttributeType.STRING },

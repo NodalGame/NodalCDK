@@ -1,5 +1,6 @@
 *.js
 !jest.config.js
+!oauth_lambda/index.js
 *.d.ts
 node_modules
 
@@ -8,4 +9,4 @@ node_modules
 cdk.out
 
 # Output from lambda build
-/lambda/target/
+/api_lambda/target/

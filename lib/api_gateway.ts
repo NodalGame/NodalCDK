@@ -1,20 +1,22 @@
-import { Stack, StackProps } from "aws-cdk-lib";
 import { Stage } from "./constants";
-import { Function } from "aws-cdk-lib/aws-lambda";
+import { Function, Handler } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
-import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
+import { AuthorizationType, JsonSchemaType, LambdaIntegration, RestApi, TokenAuthorizer } from "aws-cdk-lib/aws-apigateway";
 
-export interface ApiGatewayStackProps extends StackProps {
+export interface ApiGatewayConstructProps {
     /** The stage of this stack (dev, beta, prod). */
     readonly stage: Stage;
 
+    /** The lambda function handling authorization requests. */
+    readonly oauthLambda: Function;
+
     /** The lambda function handling API requests. */
-    readonly lambda: Function;
+    readonly apiHandlerLambda: Function;
 }
 
-export class ApiGatewayStack extends Stack {
-    constructor(scope: Construct, id: string, props: ApiGatewayStackProps) {
-        super(scope, id, props);
+export class ApiGatewayConstruct extends Construct {
+    constructor(scope: Construct, id: string, props: ApiGatewayConstructProps) {
+        super(scope, id);
 
         /**
          * Rest APIs for the game. 
@@ -23,12 +25,61 @@ export class ApiGatewayStack extends Stack {
             restApiName: `ApiGateway-${props.stage}`,
         });
 
-        const lambdaIntegration = new LambdaIntegration(props.lambda, {
+        const lambdaIntegration = new LambdaIntegration(props.apiHandlerLambda, {
             requestTemplates: { "application/json": '{ "statusCode": "200" }' },
         });
 
-        /** TODO remove this resource after testing finishes. */
-        const testResource = api.root.addResource('test');
-        testResource.addMethod('GET', lambdaIntegration);
+        /**
+         * Authorizer for API. 
+         */
+        const authorizer = new TokenAuthorizer(this, `TokenAuthorizer-${props.stage}`, {
+            handler: props.oauthLambda,
+        });
+
+        /**
+         * OAuth redirect URI for account linking. 
+         */
+        const redirectUriResource = api.root.addResource('auth').addResource('callback');
+
+        /**
+         * API resources and models for user management. 
+         */
+        const usersResource = api.root.addResource('users');
+
+        const userUpdateModel = api.addModel('UserUpdateModel', {
+            contentType: 'application/json',
+            modelName: 'UserUpdate',
+            schema: {
+                type: JsonSchemaType.OBJECT,
+                properties: {
+                    globalAccountId: { type: JsonSchemaType.STRING },
+                    platformAccountId: { type: JsonSchemaType.STRING },
+                    platform: { type: JsonSchemaType.STRING },
+                },
+                // Global account ID is not required, since this may be first-time account creation for a user. 
+                required: ['platformAccountId', 'platform']
+            }
+        });
+
+        usersResource.addMethod('POST', lambdaIntegration, {
+            authorizationType: AuthorizationType.CUSTOM,
+            authorizer: authorizer,
+            requestModels: {
+                'application/json': userUpdateModel,
+            },
+            methodResponses: [
+                // TODO
+            ]
+        });
+
+        const userIdResource = usersResource.addResource('{userId}');
+
+        userIdResource.addMethod('GET', lambdaIntegration, {
+            authorizationType: AuthorizationType.CUSTOM,
+            authorizer: authorizer,
+            methodResponses: [
+                // TODO
+            ]
+        });
     }
 }

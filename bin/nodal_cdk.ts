@@ -2,9 +2,7 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { STACK_PREFIX, Stage } from '../lib/constants';
-import { StorageStack } from '../lib/storage';
-import { LambdaStack } from '../lib/lambda';
-import { ApiGatewayStack } from '../lib/api_gateway';
+import { NodalStack } from '../lib/nodal_stack';
 
 const app = new cdk.App();
 const env = {
@@ -12,46 +10,23 @@ const env = {
 }
 
 if (process.env.STAGE == 'dev') {
-    // Create dev stacks
-    createStacks({
-        app,
+    new NodalStack(app, `${STACK_PREFIX}-${Stage.DEV}`, {
         env,
         stage: Stage.DEV,
+        terminationProtection: false,
     });
-} else {
-    // Create beta and prod stacks
-    createStacks({
-        app,
+} else if (process.env.STAGE == 'beta') {
+    new NodalStack(app, `${STACK_PREFIX}-${Stage.BETA}`, {
         env,
         stage: Stage.BETA,
+        terminationProtection: true,
     });
-    createStacks({
-        app,
+} else if (process.env.STAGE == 'prod') {
+    new NodalStack(app, `${STACK_PREFIX}-${Stage.PROD}`, {
         env,
         stage: Stage.PROD,
+        terminationProtection: true,
     });
-}
-
-interface CommonStackProps {
-    app: cdk.App;
-    env: cdk.Environment;
-    stage: Stage;
-}
-
-function createStacks(props: CommonStackProps) {
-    const storageStack = new StorageStack(props.app, `${STACK_PREFIX}-StorageStack-${props.stage}`, {
-        env: props.env,
-        stage: props.stage,
-    });
-
-    const lambdaStack = new LambdaStack(props.app, `${STACK_PREFIX}-LambdaStack-${props.stage}`, {
-        env: props.env,
-        stage: props.stage,
-    });
-
-    const apiGatewayStack = new ApiGatewayStack(props.app, `${STACK_PREFIX}-ApiGatewayStack-${props.stage}`, {
-        env: props.env,
-        stage: props.stage,
-        lambda: lambdaStack.lambda,
-    });
+} else {
+    throw new Error('Invalid stage, choose one of {dev, beta, prod}.');
 }

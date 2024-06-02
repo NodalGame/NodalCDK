@@ -4,4 +4,4 @@ export enum Stage {
     PROD = 'prod',
 }
 
-export const STACK_PREFIX = 'Nodal';
+export const STACK_PREFIX = 'NodalStack';
