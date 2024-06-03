@@ -26,6 +26,7 @@ export class NodalStack extends Stack {
         const apiGatewayConstruct = new ApiGatewayConstruct(this, `${STACK_PREFIX}-ApiGateway-${props.stage}`, {
             stage: props.stage,
             oauthLambda: lambdaConstruct.oauthLambda,
+            apiAuthorizerLambda: lambdaConstruct.apiAuthorizerLambda,
             apiHandlerLambda: lambdaConstruct.apiHandlerLambda,
         });
     }
