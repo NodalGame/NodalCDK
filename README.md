@@ -15,8 +15,9 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 ## Development
 
-1. Build the lambda package navigate to `/lambda/` and run `cargo build` (Windows) or `cargo build --release --target x86_64-unknown-linux-gnu` (Linux).
+1. Build the lambda packages by navigating to `/lambdas/<lambda>` and run `cargo build` (Windows) or `cargo build --release --target x86_64-unknown-linux-gnu` (Linux).
 2. Run unit tests with `cargo test` (Windows) or `cargo test --release --target x86_64-unknown-linux-gnu` (Linux) from the same directory.
 3. Set environment variable `STAGE` to "dev", as this will be used for deploying your personal stack to test with. 
-3. Run `aws configure` with your public and secret AWS access key. 
-4. Start using the Useful Commands to play around! 
+4. Set `ITCH_CLIENT_SECRET` and `ITCH_CLIENT_ID` to those defined by the OAuth app on itch.io/user/settings/oauth-apps/<id>
+5. Run `aws configure` with your public and secret AWS access key. 
+6. Start using the Useful Commands to play around! 

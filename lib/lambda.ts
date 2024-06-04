@@ -1,12 +1,19 @@
 import { Duration } from "aws-cdk-lib";
 import { ITCH_AUTH_DOMAIN, ITCH_CLIENT_ID_DEV, REDIRECT_URI_DEV, Stage } from "./constants";
-import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
+import { Code, DockerImageCode, DockerImageFunction, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
 import path = require("path");
+import { Table } from "aws-cdk-lib/aws-dynamodb";
 
 export interface LambdaConstructProps {
     /** The stage of this stack (dev, beta, prod). */
     readonly stage: Stage;
+
+    /** The users table. */
+    readonly usersTable: Table;
+
+    /** The Itch.io auth table. */
+    readonly itchAuthTable: Table;
 }
 
 export class LambdaConstruct extends Construct {
@@ -16,13 +23,6 @@ export class LambdaConstruct extends Construct {
 
     constructor(scope: Construct, id: string, props: LambdaConstructProps) {
         super(scope, id);
-
-        let client_id: string; 
-        switch(props.stage) {
-            case Stage.DEV: client_id = ITCH_CLIENT_ID_DEV;
-            case Stage.BETA: client_id = '';
-            case Stage.PROD: client_id = '';
-        };
 
         let redirect_uri: string;
         switch(props.stage) {
@@ -34,41 +34,39 @@ export class LambdaConstruct extends Construct {
         /**
          * Lambda function that handles the OAuth process.
          */
-        this.oauthLambda = new Function(this, `OAuthLambda-${props.stage}`, {
-            runtime: Runtime.NODEJS_20_X,
-            code: Code.fromAsset(path.join(__dirname, '../lambdas/oauth_lambda')),
-            handler: 'index.handler',
+        this.oauthLambda = new DockerImageFunction(this, `OAuthLambda-${props.stage}`, {
+            code: DockerImageCode.fromImageAsset(path.join(__dirname, '../lambdas/oauth_lambda')),
             memorySize: 128,
             timeout: Duration.seconds(10),
             environment: {
-                AUTH_DOMAIN: ITCH_AUTH_DOMAIN,
-                CLIENT_ID: client_id,
+                ITCH_CLIENT_ID: process.env.ITCH_CLIENT_ID!,
+                ITCH_CLIENT_SECRET: process.env.ITCH_CLIENT_SECRET!,
+                ITCH_AUTH_TABLE_NAME: props.itchAuthTable.tableName,
+                USERS_TABLE_NAME: props.usersTable.tableName,
                 REDIRECT_URI: redirect_uri,
-            }
+            },
         });
+
+        props.usersTable.grantReadWriteData(this.oauthLambda);
+        props.itchAuthTable.grantReadWriteData(this.oauthLambda);
     
         /**
          * Lambda function that handles authorization for API requests.  
          */
-        this.apiAuthorizerLambda = new Function(this, `ApiAuthorizerLambda-${props.stage}`, {
-            runtime: Runtime.NODEJS_20_X,
-            code: Code.fromAsset(path.join(__dirname, '../lambdas/api_authorizer_lambda')),
-            handler: 'index.handler',
+        this.apiAuthorizerLambda = new DockerImageFunction(this, `ApiAuthorizerLambda-${props.stage}`, {
+            code: DockerImageCode.fromImageAsset(path.join(__dirname, '../lambdas/api_authorizer_lambda')),
             memorySize: 128,
             timeout: Duration.seconds(10),
             environment: {
-                AUTH_DOMAIN: ITCH_AUTH_DOMAIN,
-                CLIENT_ID: client_id,
+                ITCH_CLIENT_ID: process.env.ITCH_CLIENT_ID!,
             }
         });
 
         /**
          * Lambda function that handles the API requests.
          */
-        this.apiHandlerLambda = new Function(this, `ApiLambda-${props.stage}`, {
-            runtime: Runtime.PROVIDED_AL2,
-            code: Code.fromAsset(path.join(__dirname, '../lambdas/api_lambda/target/x86_64-unknown-linux-gnu/release')),
-            handler: 'bootstrap',
+        this.apiHandlerLambda = new DockerImageFunction(this, `ApiLambda-${props.stage}`, {
+            code: DockerImageCode.fromImageAsset(path.join(__dirname, '../lambdas/api_lambda')),
             memorySize: 128,
             timeout: Duration.seconds(10),
         });
