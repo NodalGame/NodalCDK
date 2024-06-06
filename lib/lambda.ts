@@ -1,9 +1,10 @@
 import { Duration } from "aws-cdk-lib";
-import { ITCH_AUTH_DOMAIN, ITCH_CLIENT_ID_DEV, REDIRECT_URI_DEV, Stage } from "./constants";
-import { Code, DockerImageCode, DockerImageFunction, Function, Runtime } from "aws-cdk-lib/aws-lambda";
+import { REDIRECT_URI_DEV, Stage } from "./constants";
+import { DockerImageCode, DockerImageFunction, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
 import path = require("path");
 import { Table } from "aws-cdk-lib/aws-dynamodb";
+import { RustFunction } from "aws-lambda-rust";
 
 export interface LambdaConstructProps {
     /** The stage of this stack (dev, beta, prod). */
