@@ -44,4 +44,7 @@ WORKDIR /root/
 # Copy the compiled binary from the builder stage
 COPY --from=builder /usr/src/myapp/target/x86_64-unknown-linux-musl/release/bootstrap .
 
+# Ensure the bootstrap file has executable permissions
+RUN chmod o+rx /root
+
 CMD ["./bootstrap"]

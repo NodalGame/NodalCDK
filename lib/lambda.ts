@@ -4,11 +4,15 @@ import { DockerImageCode, DockerImageFunction, Function, Runtime } from "aws-cdk
 import { Construct } from "constructs";
 import path = require("path");
 import { Table } from "aws-cdk-lib/aws-dynamodb";
-import { RustFunction } from "aws-lambda-rust";
+import { Repository } from "aws-cdk-lib/aws-ecr";
+import { DockerImageAsset } from "aws-cdk-lib/aws-ecr-assets";
+import { DockerImageName, ECRDeployment } from "cdk-ecr-deployment";
 
 export interface LambdaConstructProps {
     /** The stage of this stack (dev, beta, prod). */
     readonly stage: Stage;
+
+    /** The ECR repo to store the lambdas. */
 
     /** The users table. */
     readonly usersTable: Table;
