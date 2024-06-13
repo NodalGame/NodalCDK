@@ -6,7 +6,7 @@ WORKDIR /usr/src/myapp
 # Install dependencies for building OpenSSL and other packages
 RUN apt-get update && \
     apt-get install -y musl-tools musl-dev pkg-config libssl-dev curl \
-                       build-essential linux-headers-generic 
+                       build-essential linux-headers-generic gdb
 
 # Download and compile OpenSSL for musl
 RUN curl -O https://www.openssl.org/source/openssl-1.1.1k.tar.gz && \
@@ -27,17 +27,13 @@ COPY . .
 # Add target
 RUN rustup target add x86_64-unknown-linux-musl
 
-# Set the linker to use musl
-ENV CC_x86_64_unknown_linux_musl=musl-gcc \
-    CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=musl-gcc
-
 # Build the application in release mode
 RUN cargo build --release --target x86_64-unknown-linux-musl
 
 # Create a minimal image
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates gdb
 
 WORKDIR /root/
 
